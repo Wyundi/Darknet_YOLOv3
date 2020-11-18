@@ -236,9 +236,11 @@ image **load_alphabet()
     return alphabets;
 }
 
-void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes)
+void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int fd)
 {
     int i,j;
+
+    int len, ret;
 
     for(i = 0; i < num; ++i){
         char labelstr[4096] = {0};
@@ -253,6 +255,16 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
                     strcat(labelstr, names[j]);
                 }
                 printf("%s: %.0f%%\n", names[j], dets[i].prob[j]*100);
+                
+                if(fd >= 0)
+                {
+                    char buf[50];
+                    len = sprintf(buf, "%s: %.0f%%, ", names[j], dets[i].prob[j]*100);
+                    len = write(fd, buf, len);
+                    if (len < 0) {
+                        printf("write data error \n");
+                    }
+                }
             }
         }
         if(class >= 0){
@@ -289,6 +301,16 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
             if(right > im.w-1) right = im.w-1;
             if(top < 0) top = 0;
             if(bot > im.h-1) bot = im.h-1;
+
+            if(fd >= 0)
+            {
+                char buf[50];
+                len = sprintf(buf, "%d, %d, %d, %d\n", left, right, top, bot);
+                len = write(fd, buf, len);
+                if (len < 0) {
+                    printf("write data error \n");
+                }
+            }
 
             draw_box_width(im, left, top, right, bot, width, red, green, blue);
             if (alphabet) {
