@@ -1,2 +1,4 @@
-models/
-weights/
+darknet/models/
+darknet/weights/
+application/video/darknet/models
+application/video/darknet/weights
