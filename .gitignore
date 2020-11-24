@@ -1,2 +1,2 @@
-models/
-weights/
+darknet/models/
+darknet/weights/
