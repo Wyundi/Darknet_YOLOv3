@@ -296,8 +296,39 @@ wget https://pjreddie.com/media/files/yolov3-tiny.weights
 
 #### 整理数据
 
+##### VOC格式数据集
+
 - VOC格式数据不能直接用于darknet训练，需要使用 [voc_label.py](####voc_label.py) 将其转换为darknet格式
 - 计算anchors并写入cfg文件
+
+##### YOLO格式数据集
+
+- 使用labelImg进行标注，标注格式选择YOLO
+
+- 标注完成后在目标文件夹内包含：
+  - 所有图片的标注信息，标注文件和图片一一对应
+  - classes.txt文件，包含所有图片的类别（名称）信息
+  
+- 所有图片存入目录 [images] 中，所有标签存入目录 [labels] 中，[images] 和 [labels] 目录应在同一根目录下
+
+  - 此处涉及到darknet网络的标签读取方式，在训练过程中，网络只要求写出了图片地址，标签地址则根据图片地址进行文本替换得出。具体替换过程为：
+
+  - ```c
+    // /src/data.c
+    
+    void fill_truth_region(char *path, float *truth, int classes, int num_boxes, int flip, float dx, float dy, float sx, float sy)
+    {
+        char labelpath[4096];
+        find_replace(path, "images", "labels", labelpath);
+        find_replace(labelpath, "JPEGImages", "labels", labelpath);
+    
+        find_replace(labelpath, ".jpg", ".txt", labelpath);
+        find_replace(labelpath, ".png", ".txt", labelpath);
+        find_replace(labelpath, ".JPG", ".txt", labelpath);
+        find_replace(labelpath, ".JPEG", ".txt", labelpath);
+    ```
+
+  - 所以训练集文件结构要与其对应一致
 
 
 
@@ -489,7 +520,7 @@ wget https://pjreddie.com/media/files/yolov3-tiny.weights
 
   - -w 1920 -h 1080
 
-- -fps: 设置输入视频流帧速率
+- -fps: 设置输入视频流帧速率，只对相机有效，对本地视频无效
 
   
 
